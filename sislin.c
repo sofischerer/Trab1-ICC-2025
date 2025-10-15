@@ -6,6 +6,9 @@
 #include "utils.h"
 #include "sislin.h"
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
+
 static inline real_t generateRandomA( unsigned int i, unsigned int j, unsigned int k );
 static inline real_t generateRandomB( unsigned int k );
 
@@ -32,14 +35,23 @@ static inline real_t generateRandomB( unsigned int k )
 
 
 /* Cria matriz 'A' k-diagonal e Termos independentes B */
-void criaKDiagonal(int n, int k, real_t **A, real_t **B)
+void criaKDiagonal(int n, int k, real_t **A, real_t *B)
 {
-  
+  int metade = k/2;
+  for(int i = 0; i<n; i++){
+    A[i] = calloc(n, sizeof(real_t));
+    for(int j = max(0, i - metade); j <= min(n-1, i + metade); j++){
+      A[i][j] = generateRandomA(i, j, k);
+    }
+  }
+  for (int i =0; i<n; i++){
+    B[i] = generateRandomB(k);
+  }
 }
 
 /* Gera matriz simetrica positiva */
 void genSimetricaPositiva(real_t *A, real_t *b, int n, int k, 
-			  real_t **ASP, real_t *bsp, rtime_t *tempo)
+			  real_t **ASP, real_t **bsp, rtime_t *tempo)
 {
   *tempo = timestamp();
 
