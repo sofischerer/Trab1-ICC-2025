@@ -33,27 +33,64 @@ static inline real_t generateRandomB( unsigned int k )
   return (real_t)(k<<2) * (real_t)random() * invRandMax;
 }
 
+void print_matriz(real_t* A, int lin, int col){
+    for(int i = 0; i < lin; i++){
+        for(int j = 0; j < col; j++){
+            printf("%13.8g ", A[(i*col)+j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+    return;
+}
+
 
 /* Cria matriz 'A' k-diagonal e Termos independentes B */
-void criaKDiagonal(int n, int k, real_t **A, real_t *B)
+void criaKDiagonal(int n, int k, real_t *A, real_t *B)
 {
-  int metade = k/2;
-  for(int i = 0; i<n; i++){
-    A[i] = calloc(n, sizeof(real_t));
-    for(int j = max(0, i - metade); j <= min(n-1, i + metade); j++){
-      A[i][j] = generateRandomA(i, j, k);
+  int metade = (k/2);
+  for (int i = 0; i<n; i++){
+    for (int j=max(i-metade, 0); j<=min(n, i+metade); j++){
+      A[(n*i)+j] = generateRandomA(i, j, k);
     }
   }
-  for (int i =0; i<n; i++){
-    B[i] = generateRandomB(k);
+  for (int i = 0; i<n; i++){
+      B[i] = generateRandomB(k);
   }
+}
+
+void calcular_AtA(real_t* A, real_t* AtA, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            real_t soma = 0.0;
+            for (int k = 0; k < n; k++) {
+                soma += A[i * n + k] * A[j * n + k];
+            }
+            AtA[i * n + j] = soma;
+        }
+    }
+}
+
+void calcular_Atb(real_t* A, real_t* b, real_t* Atb, int n) {
+    for (int i = 0; i < n; i++) {
+        real_t soma = 0.0;
+        for (int k = 0; k < n; k++) {
+            soma += A[n*k + i] * b[k];
+        }
+        Atb[i] = soma;
+    }
 }
 
 /* Gera matriz simetrica positiva */
 void genSimetricaPositiva(real_t *A, real_t *b, int n, int k, 
-			  real_t **ASP, real_t **bsp, rtime_t *tempo)
+			  real_t *ASP, real_t *bsp, rtime_t *tempo)
 {
   *tempo = timestamp();
+
+  calcular_AtA(A, ASP, n);
+  calcular_Atb(A, b, bsp, n);
+
+  // gradiente_conjugado(AtA, Atb, x, n, max_iter);
 
   *tempo = timestamp() - *tempo;
  
