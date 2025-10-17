@@ -33,6 +33,17 @@ static inline real_t generateRandomB( unsigned int k )
   return (real_t)(k<<2) * (real_t)random() * invRandMax;
 }
 
+void multiplicar_matrizes(real_t *A, real_t *B, real_t *C, int m, int n, int p) {
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < p; ++j) {
+            C[i * p + j] = 0.0f;
+            for (int k = 0; k < n; ++k) {
+                C[i * p + j] += A[i * n + k] * B[k * p + j];
+            }
+        }
+    }
+}
+
 void print_matriz(real_t* A, int lin, int col){
     for(int i = 0; i < lin; i++){
         for(int j = 0; j < col; j++){
@@ -50,7 +61,7 @@ void criaKDiagonal(int n, int k, real_t *A, real_t *B)
 {
   int metade = (k/2);
   for (int i = 0; i<n; i++){
-    for (int j=max(i-metade, 0); j<=min(n, i+metade); j++){
+    for (int j=max(i-metade, 0); j<=min(n-1, i+metade); j++){
       A[(n*i)+j] = generateRandomA(i, j, k);
     }
   }
@@ -89,19 +100,29 @@ void genSimetricaPositiva(real_t *A, real_t *b, int n, int k,
 
   calcular_AtA(A, ASP, n);
   calcular_Atb(A, b, bsp, n);
-
-  // gradiente_conjugado(AtA, Atb, x, n, max_iter);
-
+  
   *tempo = timestamp() - *tempo;
  
 }
 
 
 void geraDLU (real_t *A, int n, int k,
-	      real_t **D, real_t **L, real_t **U, rtime_t *tempo)
+	      real_t *D, real_t *L, real_t *U, rtime_t *tempo)
 {
   *tempo = timestamp();
 
+  int metade = k/2;
+  for(int i=0; i<n; i++){
+    for(int j=max(0, i-metade); j<i; j++){
+      L[(i*n)+j] = A[(i*n)+j];
+    }
+
+    D[(i*n)+i] = A[(i*n)+i];
+
+    for(int j=i+1; j<min(i+metade+1, n); j++){
+      U[(i*n)+j] = A[(i*n)+j];
+    }    
+  }
 
   *tempo = timestamp() - *tempo;
 }
@@ -111,23 +132,42 @@ void geraDLU (real_t *A, int n, int k,
  *
  */
 void geraPreCond(real_t *D, real_t *L, real_t *U, real_t w, int n, int k,
-		 real_t **M, rtime_t *tempo)
+		 real_t *M, rtime_t *tempo)
 {
   *tempo = timestamp();
+  if(w==-1){
+    for(int i=0; i<n;i++){
+      M[(i*n)+i] = 1;
+    }
+  }
+  else if(w==0.0){
+    for(int i=0; i<n; i++){
+      M[(i*n)+i] = 1.0/D[(i*n)+i];
+    }
+  }else if(w==1.0){
+    //IMPLEMENTAR ERRO
+  }else if(w>1.0 && w<=2.0){
+    //IMPLEMENTAR ERRO
+  }else{
+    //IMPLEMENTAR ERRO
+  }
 
 
   *tempo = timestamp() - *tempo;
 }
 
 
-real_t calcResiduoSL (real_t *A, real_t *b, real_t *X,
+void calcResiduoSL (real_t *A, real_t *b, real_t *X, real_t* r,
 		      int n, int k, rtime_t *tempo)
 {
   *tempo = timestamp();
 
-  real_t *r = calloc(n, sizeof(real_t));
-
-  
+  real_t tmp[n];
+  multiplicar_matrizes(A, X, tmp, n, n, 1);
+  print_matriz(tmp, 1, n);
+  for (int i=0; i<n; i++){
+    r[i] = b[i] - tmp[i];
+  }
 
   *tempo = timestamp() - *tempo;
 }
