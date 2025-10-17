@@ -47,11 +47,10 @@ void multiplicar_matrizes(real_t *A, real_t *B, real_t *C, int m, int n, int p) 
 void print_matriz(real_t* A, int lin, int col){
     for(int i = 0; i < lin; i++){
         for(int j = 0; j < col; j++){
-            printf("%13.8g ", A[(i*col)+j]);
+            printf("%.16g ", A[(i*col)+j]);
         }
         printf("\n");
     }
-    printf("\n");
     return;
 }
 
@@ -164,7 +163,7 @@ void calcResiduoSL (real_t *A, real_t *b, real_t *X, real_t* r,
 
   real_t tmp[n];
   multiplicar_matrizes(A, X, tmp, n, n, 1);
-  print_matriz(tmp, 1, n);
+  //print_matriz(tmp, 1, n);
   for (int i=0; i<n; i++){
     r[i] = b[i] - tmp[i];
   }

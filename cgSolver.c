@@ -1,5 +1,6 @@
 #include "sislin.h"
 #include "utils.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -52,11 +53,21 @@ void copiar_vetor(real_t* origem, real_t* destino, int n){
     }
 }
 
+real_t residuo_euc(real_t* A, real_t n, rtime_t* tempo){
+    
+    *tempo = timestamp();
+    real_t sum = 0.0;
+    for(int i=0;i<n;i++){
+        sum += A[i]*A[i];
+    }
+    *tempo = timestamp() - *tempo;
+    return sqrt(sum);
+}
+
 
 int main(){
 
     srandom(20252);    
-    real_t tempo = 0;
     int k, n, w, maxiter;
     real_t max_err;
 
@@ -79,21 +90,27 @@ int main(){
     real_t *tmp = calloc(n, sizeof(real_t));    
     real_t alpha;
     real_t beta;
+    rtime_t tempo_pc, tempo_iter, tempo_residuo, temp;
     double err = 0.0;
+    tempo_pc = 0.0;
     int iter = 0;
 
     criaKDiagonal(n, k, A, b);
-    genSimetricaPositiva(A, b, n, k, ASP, bsp, &tempo);
-    geraDLU(A, n, k, D, L, U, &tempo);
-    geraPreCond(D, L, U, w, n, k, M, &tempo);    
+    genSimetricaPositiva(A, b, n, k, ASP, bsp, &temp);
+    tempo_pc += temp;
+    geraDLU(A, n, k, D, L, U, &temp);
+    tempo_pc += temp;
+    geraPreCond(D, L, U, w, n, k, M, &temp);    
+    tempo_pc += temp;
     
     //APLICAR M EM A e b
     multiplicar_matrizes(M, ASP, A, n, n, n);
     multiplicar_matrizes(M, bsp, b, n, n, 1);
 
-    calcResiduoSL(A, b, X, r, n, k, &tempo);
+    calcResiduoSL(A, b, X, r, n, k, &temp);
     copiar_vetor(r, p, n);
     do{
+        tempo_iter = timestamp();
         copiar_vetor(X, x_old, n);
         copiar_vetor(r, r_old, n);
         alpha = escalar(r, n);
@@ -112,7 +129,15 @@ int main(){
             p[i] = r[i] + beta*p[i];
         }
         iter++;
+        tempo_iter = timestamp() - tempo_iter;
     }while(iter < maxiter);
-    test_prints(A, b, X, ASP, bsp, D, L, U, r, n);
-    printf("%d\n", iter);
+    // test_prints(A, b, X, ASP, bsp, D, L, U, r, n);
+    // printf("%d\n", iter);
+    printf("%d\n", n);
+    print_matriz( X, 1, n);
+    printf("%.8g\n", err);
+    printf("%.16g\n", residuo_euc(r, n, &tempo_residuo));
+    printf("%.8g\n", tempo_pc);
+    printf("%.8g\n", tempo_iter);
+    printf("%.8g\n", tempo_residuo);
 }
