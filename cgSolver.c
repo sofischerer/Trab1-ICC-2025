@@ -1,4 +1,4 @@
-#include "sislin.h"
+#include "pcgc.h"
 #include "utils.h"
 #include <math.h>
 #include <stdio.h>
@@ -68,10 +68,17 @@ real_t residuo_euc(real_t* A, real_t n, rtime_t* tempo){
 int main(){
 
     srandom(20252);    
-    int k, n, w, maxiter;
+    int k, n, maxiter;
+    real_t w;
     real_t max_err;
 
-    scanf("%d %d %d %d %lf", &n, &k, &w, &maxiter, &max_err);
+    scanf("%d %d %lf %d %lf", &n, &k, &w, &maxiter, &max_err);
+
+    printf("%lf", w);
+    if(w!=-1 && w!=0){
+        fprintf(stderr, "w inválido");
+        return -1;
+    }
 
     //Feio mas hey as long as it works
     real_t *A = calloc(n*n, sizeof(real_t));
@@ -92,6 +99,7 @@ int main(){
     real_t beta;
     rtime_t tempo_pc, tempo_iter, tempo_residuo, temp;
     double err = 0.0;
+    tempo_iter = 0.0;
     tempo_pc = 0.0;
     int iter = 0;
 
@@ -107,10 +115,13 @@ int main(){
     multiplicar_matrizes(M, ASP, A, n, n, n);
     multiplicar_matrizes(M, bsp, b, n, n, 1);
 
+    // printf("%d %d %d %d %lf", n, k, w, maxiter, max_err);
+
     calcResiduoSL(A, b, X, r, n, k, &temp);
     copiar_vetor(r, p, n);
+    temp = 0.0;
     do{
-        tempo_iter = timestamp();
+        temp = timestamp();
         copiar_vetor(X, x_old, n);
         copiar_vetor(r, r_old, n);
         alpha = escalar(r, n);
@@ -129,15 +140,22 @@ int main(){
             p[i] = r[i] + beta*p[i];
         }
         iter++;
-        tempo_iter = timestamp() - tempo_iter;
+        temp = timestamp() - temp;
+        tempo_iter += temp;
+        // printf("iter: %d maxiter:%d \n", iter, maxiter);
     }while(iter < maxiter);
     // test_prints(A, b, X, ASP, bsp, D, L, U, r, n);
     // printf("%d\n", iter);
-    printf("%d\n", n);
+    if (iter >= maxiter){
+        fprintf(stderr, "Método não convergiu no limite de iterações");
+        return -1;
+    }
+    tempo_iter /= iter;
+    printf("N: %d\n", n);
     print_matriz( X, 1, n);
-    printf("%.8g\n", err);
-    printf("%.16g\n", residuo_euc(r, n, &tempo_residuo));
-    printf("%.8g\n", tempo_pc);
-    printf("%.8g\n", tempo_iter);
-    printf("%.8g\n", tempo_residuo);
+    printf("Norma: %.8g\n", err);
+    printf("Residuo: %.16g\n", residuo_euc(r, n, &tempo_residuo));
+    printf("tempo_pc: %.8g\n", tempo_pc);
+    printf("tempo_iter: %.8g\n", tempo_iter);
+    printf("tempo_residuo: %.8g\n", tempo_residuo);
 }
