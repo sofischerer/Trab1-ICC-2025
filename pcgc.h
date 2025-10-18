@@ -15,7 +15,7 @@ void print_matriz(double* A, int lin, int col);
 void genSimetricaPositiva(double *A, double *b, int n, int k, double *ASP, double *bsp, double *tempo);
 void geraDLU (double *A, int n, int k, double *D, double *L, double *U, double *tempo);
 void geraPreCond(double *D, double *L, double *U, double w, int n, int k, double *M, double *tempo);
-void calcResiduoSL (double *A, double *b, double *X, double *r, int n, int k, double *tempo);
+void calcResiduoSL (double *A, double *b, double *X, double *r, int n, int k);
 
 #endif // __SISLIN_H__
 

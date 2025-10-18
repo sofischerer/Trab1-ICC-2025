@@ -4,30 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void test_prints(real_t* A, real_t* b, real_t* X, real_t* ASP, real_t* bsp, real_t* D, real_t* L, real_t* U, real_t* r, int n){
-
-    printf("\n");
-    printf("---------------------------------------------\nA:\n");
-    print_matriz(A, n, n);
-    printf("---------------------------------------------\nb:\n");
-    print_matriz(b, 1, n);
-    printf("---------------------------------------------\nX:\n");
-    print_matriz(X, 1, n);
-    printf("---------------------------------------------\nASP:\n");
-    print_matriz(ASP, n, n);
-    printf("---------------------------------------------\nbsp:\n");
-    print_matriz(bsp, 1, n);
-    printf("---------------------------------------------\nD:\n");
-    print_matriz(D, n, n);
-    printf("---------------------------------------------\nL:\n");
-    print_matriz(L, n, n);
-    printf("---------------------------------------------\nU:\n");
-    print_matriz(U, n, n);
-    printf("---------------------------------------------\nr:\n");
-    print_matriz(r, 1, n);
-
-    return;
-}
 
 real_t calc_err(real_t* x, real_t* x_old, int n){
     real_t max = fabs(x[0] - x_old[0]);
@@ -74,9 +50,20 @@ int main(){
 
     scanf("%d %d %lf %d %lf", &n, &k, &w, &maxiter, &max_err);
 
-    printf("%lf", w);
+    if (n<10){
+        fprintf(stderr, "Erro: N muito pequeno (menor que 10)");
+        return -1;
+    }
+    if (k<=1){
+        fprintf(stderr, "Erro: K muito pequeno (menor que 3)");
+        return -1;
+    }
+    if (k%2 == 0){
+        fprintf(stderr, "Erro: K par");
+        return -1;
+    }
     if(w!=-1 && w!=0){
-        fprintf(stderr, "w inválido");
+        fprintf(stderr, "Erro: w inválido");
         return -1;
     }
 
@@ -102,6 +89,7 @@ int main(){
     tempo_iter = 0.0;
     tempo_pc = 0.0;
     int iter = 0;
+    //Podia limpar isso mas não estou com tempo para isso, para o T2 será limpo e organizado
 
     criaKDiagonal(n, k, A, b);
     genSimetricaPositiva(A, b, n, k, ASP, bsp, &temp);
@@ -115,9 +103,7 @@ int main(){
     multiplicar_matrizes(M, ASP, A, n, n, n);
     multiplicar_matrizes(M, bsp, b, n, n, 1);
 
-    // printf("%d %d %d %d %lf", n, k, w, maxiter, max_err);
-
-    calcResiduoSL(A, b, X, r, n, k, &temp);
+    calcResiduoSL(A, b, X, r, n, k);
     copiar_vetor(r, p, n);
     temp = 0.0;
     do{
@@ -142,20 +128,17 @@ int main(){
         iter++;
         temp = timestamp() - temp;
         tempo_iter += temp;
-        // printf("iter: %d maxiter:%d \n", iter, maxiter);
     }while(iter < maxiter);
-    // test_prints(A, b, X, ASP, bsp, D, L, U, r, n);
-    // printf("%d\n", iter);
     if (iter >= maxiter){
-        fprintf(stderr, "Método não convergiu no limite de iterações");
+        fprintf(stderr, "Método não convergiu no limite de iterações (%d)", iter);
         return -1;
     }
     tempo_iter /= iter;
-    printf("N: %d\n", n);
+    printf("%d\n", n);
     print_matriz( X, 1, n);
-    printf("Norma: %.8g\n", err);
-    printf("Residuo: %.16g\n", residuo_euc(r, n, &tempo_residuo));
-    printf("tempo_pc: %.8g\n", tempo_pc);
-    printf("tempo_iter: %.8g\n", tempo_iter);
-    printf("tempo_residuo: %.8g\n", tempo_residuo);
+    printf("%.8g\n", err);
+    printf("%.16g\n", residuo_euc(r, n, &tempo_residuo));
+    printf("%.8g\n", tempo_pc);
+    printf("%.8g\n", tempo_iter);
+    printf("%.8g\n", tempo_residuo);
 }

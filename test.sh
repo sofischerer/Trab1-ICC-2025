@@ -1,9 +1,9 @@
-gcc -o cgSolver cgSolver.c sislin.c utils.c -lm
+gcc -o cgSolver cgSolver.c pcgc.c utils.c -lm
 ./cgSolver << ENTRADA
 10
-4
--1
+3
+0
 100000
-0.0000001
+0.00001
 ENTRADA
 

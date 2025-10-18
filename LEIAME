@@ -1,0 +1,8 @@
+Sofia Pessini Scherer
+GRR20190133
+
+Os módulos usados foram apenas modificações sobre os módulos que foram dados. Existem algumas funções auxiliares em cgSolver.c, mas caso seja preferivel, é outra coisa do projeto que pode ser facilmente modificada para o T2.
+Essa versão não implementa muitas otimizações. A primeiro momento a prioridade foi fazer um código funcional. 
+Novamente por questões de tempo não foram implementados Gauss-Seidel, nem SSOR. Mas caso fossem futuramente implementadas, estariam em pcgc.c.
+A única otimização implementada é que as matrizes são todas salvas como vetores. Isso cria a possibilidade de não existir um bloco de memória continuo grande o bastante para caber a matriz inteira em casos de N muito grades.
+Um tratamento de erros que não foi implementado nessa versão é para a verificação de todas as alocações de memória. Será implementado no T2.

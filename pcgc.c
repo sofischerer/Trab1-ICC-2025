@@ -32,6 +32,9 @@ static inline real_t generateRandomB( unsigned int k )
   return (real_t)(k<<2) * (real_t)random() * invRandMax;
 }
 
+/*
+* Multiplica duas matrizes salvas em vetor
+*/
 void multiplicar_matrizes(real_t *A, real_t *B, real_t *C, int m, int n, int p) {
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < p; ++j) {
@@ -43,6 +46,9 @@ void multiplicar_matrizes(real_t *A, real_t *B, real_t *C, int m, int n, int p) 
     }
 }
 
+/*
+* Imprime matriz salvas em um vetor A
+*/
 void print_matriz(real_t* A, int lin, int col){
     for(int i = 0; i < lin; i++){
         for(int j = 0; j < col; j++){
@@ -68,6 +74,9 @@ void criaKDiagonal(int n, int k, real_t *A, real_t *B)
   }
 }
 
+/*
+* Gera matriz A simétrica positiva
+*/
 void calcular_AtA(real_t* A, real_t* AtA, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -80,6 +89,9 @@ void calcular_AtA(real_t* A, real_t* AtA, int n) {
     }
 }
 
+/*
+* Gera matriz b simétrica positiva
+*/
 void calcular_Atb(real_t* A, real_t* b, real_t* Atb, int n) {
     for (int i = 0; i < n; i++) {
         real_t soma = 0.0;
@@ -104,6 +116,9 @@ void genSimetricaPositiva(real_t *A, real_t *b, int n, int k,
 }
 
 
+/*
+* Separa a diagonal, os elementos inferiores, e os elementos superiores de uma matriz
+*/
 void geraDLU (real_t *A, int n, int k,
 	      real_t *D, real_t *L, real_t *U, rtime_t *tempo)
 {
@@ -155,10 +170,12 @@ void geraPreCond(real_t *D, real_t *L, real_t *U, real_t w, int n, int k,
 }
 
 
+/*
+* Calcula o resíduo de um sistema linear
+*/
 void calcResiduoSL (real_t *A, real_t *b, real_t *X, real_t* r,
-		      int n, int k, rtime_t *tempo)
+		      int n, int k)
 {
-  *tempo = timestamp();
 
   real_t tmp[n];
   multiplicar_matrizes(A, X, tmp, n, n, 1);
@@ -167,7 +184,6 @@ void calcResiduoSL (real_t *A, real_t *b, real_t *X, real_t* r,
     r[i] = b[i] - tmp[i];
   }
 
-  *tempo = timestamp() - *tempo;
 }
 
 
